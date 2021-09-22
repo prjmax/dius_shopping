@@ -1,83 +1,58 @@
 "use strict";
-var Item = /** @class */ (function () {
-    function Item(sku, name, price) {
-        this._sku = sku;
-        this._name = name;
-        this._price = price;
-    }
-    Object.defineProperty(Item.prototype, "sku", {
-        get: function () {
-            return this._sku;
-        },
-        set: function (sku) {
-            this._sku = sku;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Item.prototype, "name", {
-        get: function () {
-            return this._name;
-        },
-        set: function (name) {
-            this._name = name;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Item.prototype, "price", {
-        get: function () {
-            return this._price;
-        },
-        set: function (p) {
-            this._price = p;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Item.prototype.toString = function () {
-        return "[sku: " + this.sku + ", \n                 name: " + this.name + ", \n                 price: $" + this.price + "]";
-    };
-    return Item;
-}());
-var PricingRules = /** @class */ (function () {
-    function PricingRules() {
-    }
-    return PricingRules;
-}());
-var Checkout = /** @class */ (function () {
-    function Checkout(pricingRules) {
-        this._pricingRules = pricingRules;
-        this.items = [];
-    }
-    Object.defineProperty(Checkout.prototype, "pricingRules", {
-        get: function () {
-            return this._pricingRules;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Checkout.prototype.scan = function (item, quanity) {
-        if (quanity === void 0) { quanity = 1; }
-        this.items.push(item);
-    };
-    Checkout.prototype.total = function () {
-        this.items.forEach(function (element, index) {
-            console.log("Current index: " + index);
-            console.log(element);
-        });
-    };
-    return Checkout;
-}());
-var ipd = new Item("ipd", "Super Ipad", 549.99);
-var mbp = new Item("mbp", "MacBook Pro", 1399.99);
-var atv = new Item("atv", "Apple TV", 109.50);
-var vga = new Item("VGA adapter", "Super Ipad", 30);
-var pricingRules = new PricingRules();
-var checkout = new Checkout(pricingRules);
-checkout.scan(ipd);
-checkout.scan(mbp, 2);
-checkout.scan(atv);
-checkout.scan(vga);
-checkout.scan(mbp);
-checkout.total();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var item_1 = __importDefault(require("./src/item"));
+var discount_1 = require("./src/discount");
+var pricintRules_1 = __importDefault(require("./src/pricintRules"));
+var checkout_1 = __importDefault(require("./src/checkout"));
+//Init Store
+var ipd = new item_1.default("ipd", "Super Ipad", 549.99);
+var mbp = new item_1.default("mbp", "MacBook Pro", 1399.99);
+var atv = new item_1.default("atv", "Apple TV", 109.50);
+var vga = new item_1.default("vga", "VGA adapter", 30);
+//Create discount deals
+var pricingRules = new pricintRules_1.default();
+var discountAtv = new discount_1.DiscountExtraItem(atv, 2, 1);
+pricingRules.addDiscount(discountAtv);
+var discountIpd = new discount_1.DiscountBulk(ipd, 4, 499.99);
+pricingRules.addDiscount(discountIpd);
+var discountMbp = new discount_1.DiscountBundle(mbp, 1, vga);
+pricingRules.addDiscount(discountMbp);
+//Test Cases
+var checkout1 = new checkout_1.default(pricingRules);
+checkout1.scan(atv, 3);
+checkout1.scan(vga);
+checkout1.total();
+console.log("************ Expected: $249");
+var checkout2 = new checkout_1.default(pricingRules);
+checkout2.scan(atv);
+checkout2.scan(atv);
+checkout2.scan(atv);
+checkout2.scan(vga);
+checkout2.total();
+console.log("************ Expected: $249");
+var checkout3 = new checkout_1.default(pricingRules);
+checkout3.scan(atv);
+checkout3.scan(ipd);
+checkout3.scan(ipd);
+checkout3.scan(atv);
+checkout3.scan(ipd);
+checkout3.scan(ipd);
+checkout3.scan(ipd);
+checkout3.total();
+console.log("************ Expected: $2718.95");
+var checkout4 = new checkout_1.default(pricingRules);
+checkout4.scan(atv);
+checkout4.scan(ipd, 2);
+checkout4.scan(atv);
+checkout4.scan(ipd, 3);
+checkout4.total();
+console.log("************ Expected: $2718.95");
+var checkout5 = new checkout_1.default(pricingRules);
+checkout5.scan(mbp);
+checkout5.scan(vga);
+checkout5.scan(ipd);
+checkout5.total();
+console.log("************ Expected: $1949.98");
